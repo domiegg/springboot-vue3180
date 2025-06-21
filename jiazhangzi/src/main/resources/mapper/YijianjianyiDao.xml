@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.YijianjianyiDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.jiazhangxuesheng_id as jiazhangxueshengId
+        ,a.yijianjianyi_name as yijianjianyiName
+        ,a.yijianjianyi_types as yijianjianyiTypes
+        ,a.yijianjianyi_content as yijianjianyiContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.YijianjianyiView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,jiazhangxuesheng.jiazhangxuesheng_jiazhangname as jiazhangxueshengJiazhangname
+        ,jiazhangxuesheng.jiazhangxuesheng_phone as jiazhangxueshengPhone
+        ,jiazhangxuesheng.jiazhangxuesheng_uuid_number as jiazhangxueshengUuidNumber
+        ,jiazhangxuesheng.jiazhangxuesheng_xuesheng as jiazhangxueshengXuesheng
+        ,jiazhangxuesheng.jiazhangxuesheng_id_number as jiazhangxueshengIdNumber
+        ,jiazhangxuesheng.jiazhangxuesheng_photo as jiazhangxueshengPhoto
+        ,jiazhangxuesheng.banji_types as banjiTypes
+        ,jiazhangxuesheng.jiazhangxuesheng_nianji as jiazhangxueshengNianji
+        ,jiazhangxuesheng.jiazhangxuesheng_email as jiazhangxueshengEmail
+        ,jiazhangxuesheng.new_money as newMoney
+
+        FROM yijianjianyi  a
+        left JOIN jiazhangxuesheng jiazhangxuesheng ON a.jiazhangxuesheng_id = jiazhangxuesheng.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.jiazhangxueshengId != null and params.jiazhangxueshengId != ''">
+                and (
+                    a.jiazhangxuesheng_id = #{params.jiazhangxueshengId}
+                )
+            </if>
+            <if test=" params.yijianjianyiName != '' and params.yijianjianyiName != null and params.yijianjianyiName != 'null' ">
+                and a.yijianjianyi_name like CONCAT('%',#{params.yijianjianyiName},'%')
+            </if>
+            <if test="params.yijianjianyiTypes != null and params.yijianjianyiTypes != ''">
+                and a.yijianjianyi_types = #{params.yijianjianyiTypes}
+            </if>
+            <if test=" params.yijianjianyiContent != '' and params.yijianjianyiContent != null and params.yijianjianyiContent != 'null' ">
+                and a.yijianjianyi_content like CONCAT('%',#{params.yijianjianyiContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断家长学生的id不为空 -->
+            <if test=" params.jiazhangxueshengIdNotNull != '' and params.jiazhangxueshengIdNotNull != null and params.jiazhangxueshengIdNotNull != 'null' ">
+                and a.jiazhangxuesheng_id IS NOT NULL
+            </if>
+            <if test=" params.jiazhangxueshengJiazhangname != '' and params.jiazhangxueshengJiazhangname != null and params.jiazhangxueshengJiazhangname != 'null' ">
+                and jiazhangxuesheng.jiazhangxuesheng_jiazhangname like CONCAT('%',#{params.jiazhangxueshengJiazhangname},'%')
+            </if>
+            <if test=" params.jiazhangxueshengPhone != '' and params.jiazhangxueshengPhone != null and params.jiazhangxueshengPhone != 'null' ">
+                and jiazhangxuesheng.jiazhangxuesheng_phone like CONCAT('%',#{params.jiazhangxueshengPhone},'%')
+            </if>
+            <if test=" params.jiazhangxueshengUuidNumber != '' and params.jiazhangxueshengUuidNumber != null and params.jiazhangxueshengUuidNumber != 'null' ">
+                and jiazhangxuesheng.jiazhangxuesheng_uuid_number like CONCAT('%',#{params.jiazhangxueshengUuidNumber},'%')
+            </if>
+            <if test=" params.jiazhangxueshengXuesheng != '' and params.jiazhangxueshengXuesheng != null and params.jiazhangxueshengXuesheng != 'null' ">
+                and jiazhangxuesheng.jiazhangxuesheng_xuesheng like CONCAT('%',#{params.jiazhangxueshengXuesheng},'%')
+            </if>
+            <if test=" params.jiazhangxueshengIdNumber != '' and params.jiazhangxueshengIdNumber != null and params.jiazhangxueshengIdNumber != 'null' ">
+                and jiazhangxuesheng.jiazhangxuesheng_id_number like CONCAT('%',#{params.jiazhangxueshengIdNumber},'%')
+            </if>
+            <if test="params.banjiTypes != null  and params.banjiTypes != ''">
+                and jiazhangxuesheng.banji_types = #{params.banjiTypes}
+            </if>
+
+            <if test=" params.jiazhangxueshengNianji != '' and params.jiazhangxueshengNianji != null and params.jiazhangxueshengNianji != 'null' ">
+                and jiazhangxuesheng.jiazhangxuesheng_nianji like CONCAT('%',#{params.jiazhangxueshengNianji},'%')
+            </if>
+            <if test=" params.jiazhangxueshengEmail != '' and params.jiazhangxueshengEmail != null and params.jiazhangxueshengEmail != 'null' ">
+                and jiazhangxuesheng.jiazhangxuesheng_email like CONCAT('%',#{params.jiazhangxueshengEmail},'%')
+            </if>
+            <if test="params.newMoneyStart != null ">
+                <![CDATA[  and jiazhangxuesheng.new_money >= #{params.newMoneyStart}   ]]>
+            </if>
+            <if test="params.newMoneyEnd != null ">
+                <![CDATA[  and jiazhangxuesheng.new_money <= #{params.newMoneyEnd}   ]]>
+            </if>
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>
